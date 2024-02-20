@@ -12,15 +12,23 @@ class ASCIIImageTagger(ASCIIImageViewer):
         self.data_filepath = self.filepath + ".json"
         self.load()
 
-    def add(self, tag):
-        if not (self.x, self.y) in self.tags.keys():
-            self.tags[(self.x, self.y)] = []
-        if tag not in self.tags[(self.x, self.y)]:
-            self.tags[(self.x, self.y)].append(tag)
+    def add(self, tag, list_of_positions=None):
+        """Adds the tag to each positions tuple(x,y) in the list"""
+        if not list_of_positions:
+            list_of_positions = [(self.x, self.y)]
+        for pos in list_of_positions:
+            if not (pos[0], pos[1]) in self.tags.keys():
+                self.tags[(pos[0], pos[1])] = []
+            if tag not in self.tags[(pos[0], pos[1])]:
+                self.tags[(pos[0], pos[1])].append(tag)
 
-    def remove(self, tag):
-        if (self.x, self.y) in self.tags.keys():
-            self.tags[(self.x, self.y)].remove(tag)
+    def remove(self, tag, list_of_positions=None):
+        """Removes the tag from each positions tuple(x,y) in the list"""
+        if not list_of_positions:
+            list_of_positions = [(self.x, self.y)]
+        for pos in list_of_positions:
+            if (pos[0], pos[1]) in self.tags.keys():
+                self.tags[(pos[0], pos[1])].remove(tag)
 
     @property
     def all_tags(self):

@@ -1,3 +1,4 @@
+import copy
 import re
 import subprocess
 from random import randint
@@ -47,7 +48,7 @@ class ASCIIImageViewer():
         self.reset_buffer()
 
     def __repr__(self):
-        return f"{self.filepath} [{self.x}, {self.y} | {self.brush.radius}, {self.move_factor}] {self.getpixel()}"
+        return f"{self.filepath} [{self.position} | {self.brush.radius}, {self.move_factor}] {self.getpixel()}"
 
     def load_image(self):
         self.image = Image.open(self.filepath)
@@ -64,6 +65,10 @@ class ASCIIImageViewer():
         # Set the coordinates
         self.x = x
         self.y = y
+
+    @property
+    def position(self):
+        return self.x, self.y
 
     def set_random(self):
         self.set(randint(0,self.width),randint(0,self.height))
@@ -112,13 +117,20 @@ class ASCIIImageViewer():
             for x in range(size[0]):
                 self.buffer[y][x] = self.getpixel(start_x + x, start_y + y)
 
-    def get_brush_bitmask_position_list(self):
-        size = self.viewport
-        brush_position = (
-            (int(size[0] / 2) - self.brush.radius, int(size[0] / 2) + self.brush.radius + 1),
-            (int(size[1] / 2) - self.brush.radius, int(size[1] / 2) + self.brush.radius + 1)
-        )
-        return size, brush_position
+    def get_brush_bitmask_position_list(self, mask="bitmask"):
+        """Returns the position list of the brush's center|bitmask|all"""
+        position_list = [self.position]
+        if mask == "center":
+            return position_list
+        brush_x_start, brush_y_start = self.x - int(self.brush.width/2), self.y - int(self.brush.height/2)
+        for y, line in enumerate(self.brush.sprite):
+            for x, value in enumerate(line):
+                if mask == "bitmask":
+                    if self.brush.is_brush_px(value):
+                        position_list.append((brush_x_start + x, brush_y_start + y))
+                else: # ~ all positions
+                    position_list.append((brush_x_start + x, brush_y_start + y))
+        return position_list
 
     def prepare_display_buffer(self, transform=rgb_to_char):
         # Copies the pixel buffer and transforms it into colored ascii chars in the display buffer
