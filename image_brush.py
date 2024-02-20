@@ -1,9 +1,9 @@
 import numpy
 
 class RectangularBrush():
+    TYPE = "rectangular"
     X_FACTOR = 2
     Y_FACTOR = 2
-
     TRANSPARENT_PX = '-'
     BRUSH_PX = '#'
     CENTER_PX = 'X'
@@ -20,6 +20,20 @@ class RectangularBrush():
         self.bitmask = self.make_bitmask()
         self.sprite = self.style_bitmask()
         return self.width, self.height
+
+    def set_width(self, w):
+        return self.set_dimensions(w, self.half_height)
+
+    def set_height(self, h):
+        return self.set_dimensions(self.half_width, h)
+
+    @property
+    def half_width(self):
+        return int(self.width/2)
+
+    @property
+    def half_height(self):
+        return int(self.height/2)
 
     @property
     def disabled(self):
@@ -63,6 +77,7 @@ class RectangularBrush():
         return sprite
 
 class CircularBrush(RectangularBrush):
+    TYPE = "circular"
 
     def __init__(self, radius=0):
         # 0 is a point brush, -1 disables the brush

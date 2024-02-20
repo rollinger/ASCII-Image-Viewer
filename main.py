@@ -8,8 +8,6 @@ if __name__ == "__main__":
     viewer = ASCIIImageTagger(filepath="data/Aventurien_Master_5125x8200.png")
     viewer.load_image()
     viewer.center()
-    viewer.move_factor = 3
-    viewer.brush.set_radius(3)
 
 
     while True:
@@ -29,13 +27,27 @@ if __name__ == "__main__":
             viewer.move("down")
         elif key == 'd':
             viewer.move("right")
-        elif key == "+":
-            viewer.brush.set_radius(viewer.brush.radius + 1)
+        elif key == "6":
+            if viewer.brush.TYPE == "circular":
+                viewer.brush.set_radius(viewer.brush.radius + 1)
+            else:
+                viewer.brush.set_width(viewer.brush.half_width + 1)
+        elif key == "4":
+            if viewer.brush.TYPE == "circular":
+                viewer.brush.set_radius(viewer.brush.radius - 1)
+            else:
+                viewer.brush.set_width(viewer.brush.half_width - 1)
+        elif key == "8":
+            if viewer.brush.TYPE == "rectangular":
+                viewer.brush.set_height(viewer.brush.half_height + 1)
+        elif key == "2":
+            if viewer.brush.TYPE == "rectangular":
+                viewer.brush.set_height(viewer.brush.half_height - 1)
+        elif key == "5":
+            viewer.change_brush()
         elif key == "-":
-            viewer.brush.set_radius(viewer.brush.radius - 1)
-        elif key == "y":
             viewer.move_factor -= 1
-        elif key == "x":
+        elif key == "+":
             viewer.move_factor += 1
         elif key == "b":
             print(viewer.get_brush_bitmask_position_list())

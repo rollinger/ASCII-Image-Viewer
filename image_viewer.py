@@ -4,7 +4,7 @@ import subprocess
 from random import randint
 from PIL import Image
 
-from image_brush import CircularBrush
+from image_brush import CircularBrush, RectangularBrush
 
 
 def rgb_to_char(r,g,b):
@@ -43,12 +43,12 @@ class ASCIIImageViewer():
         self.filepath = filepath
         self.x = 0
         self.y = 0
-        self.brush = CircularBrush(radius=0)
+        self.brush = CircularBrush(radius=3)
         self._move_factor = 1
         self.reset_buffer()
 
     def __repr__(self):
-        return f"{self.filepath} [{self.position} | {self.brush.radius}, {self.move_factor}] {self.getpixel()}"
+        return f"{self.filepath} [{self.position} | {self.brush}, {self.move_factor}] {self.getpixel()}"
 
     def load_image(self):
         self.image = Image.open(self.filepath)
@@ -117,6 +117,14 @@ class ASCIIImageViewer():
             for x in range(size[0]):
                 self.buffer[y][x] = self.getpixel(start_x + x, start_y + y)
 
+    def change_brush(self):
+        """Toggles brush between Circular and Rectangle"""
+        if self.brush.TYPE == "rectangular":
+            self.brush = CircularBrush(radius=3)
+        else:
+            self.brush = RectangularBrush(x=3,y=3)
+
+
     def get_brush_bitmask_position_list(self, mask="bitmask"):
         """Returns the position list of the brush's center|bitmask|all"""
         position_list = [self.position]
@@ -137,8 +145,8 @@ class ASCIIImageViewer():
         self.display_buffer = list(self.buffer)
         size = self.viewport
         brush_position = (
-            (int(size[0] / 2) - self.brush.radius, int(size[0] / 2) + self.brush.radius + 1),
-            (int(size[1] / 2) - self.brush.radius, int(size[1] / 2) + self.brush.radius + 1)
+            (int(size[0] / 2) - self.brush.half_width, int(size[0] / 2) + self.brush.half_width + 1),
+            (int(size[1] / 2) - self.brush.half_height, int(size[1] / 2) + self.brush.half_height + 1)
         )
         for y, line in enumerate(self.display_buffer):
             for x, pixel in enumerate(line):
