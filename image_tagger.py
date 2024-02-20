@@ -14,12 +14,13 @@ class ASCIIImageTagger(ASCIIImageViewer):
 
     def add(self, tag):
         if not (self.x, self.y) in self.tags.keys():
-            self.tags[(self.x, self.y)] = {}
-        self.tags[(self.x, self.y)][tag] = self.pixel()
+            self.tags[(self.x, self.y)] = []
+        if tag not in self.tags[(self.x, self.y)]:
+            self.tags[(self.x, self.y)].append(tag)
 
     def remove(self, tag):
         if (self.x, self.y) in self.tags.keys():
-            del(self.tags[(self.x, self.y)][tag])
+            self.tags[(self.x, self.y)].remove(tag)
 
     @property
     def all_tags(self):

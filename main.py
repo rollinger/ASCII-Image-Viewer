@@ -53,7 +53,9 @@ if __name__ == "__main__":
             #viewer.make_mask()
         elif key == "\t":
             viewer.set_random()
-
+        elif key == "b":
+            print(viewer.get_brush_bitmask_position_list())
+            input("Enter to continue")
         time.sleep(0.01)
 
     # Save and Exit

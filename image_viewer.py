@@ -47,7 +47,7 @@ class ASCIIImageViewer():
         self.reset_buffer()
 
     def __repr__(self):
-        return f"{self.filepath} [{self.x}, {self.y} | {self.brush.radius}, {self.move_factor}] {self.pixel()}"
+        return f"{self.filepath} [{self.x}, {self.y} | {self.brush.radius}, {self.move_factor}] {self.getpixel()}"
 
     def load_image(self):
         self.image = Image.open(self.filepath)
@@ -68,7 +68,7 @@ class ASCIIImageViewer():
     def set_random(self):
         self.set(randint(0,self.width),randint(0,self.height))
 
-    def pixel(self, x=None, y=None):
+    def getpixel(self, x=None, y=None):
         if not x:
             x = self.x
         if not y:
@@ -110,7 +110,15 @@ class ASCIIImageViewer():
         start_y = self.y - size[1]/2
         for y in range(size[1]):
             for x in range(size[0]):
-                self.buffer[y][x] = self.image.getpixel((start_x + x, start_y + y))
+                self.buffer[y][x] = self.getpixel(start_x + x, start_y + y)
+
+    def get_brush_bitmask_position_list(self):
+        size = self.viewport
+        brush_position = (
+            (int(size[0] / 2) - self.brush.radius, int(size[0] / 2) + self.brush.radius + 1),
+            (int(size[1] / 2) - self.brush.radius, int(size[1] / 2) + self.brush.radius + 1)
+        )
+        return size, brush_position
 
     def prepare_display_buffer(self, transform=rgb_to_char):
         # Copies the pixel buffer and transforms it into colored ascii chars in the display buffer
