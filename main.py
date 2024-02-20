@@ -19,6 +19,8 @@ if __name__ == "__main__":
         key = getch()
         if key == 'q':  # Press 'q' to exit the loop
             break
+        elif key == 'Q': # Save without exit
+            viewer.save()
         elif key == 'w':
             viewer.move("up")
         elif key == 'a':
