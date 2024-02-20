@@ -3,6 +3,8 @@ import subprocess
 from random import randint
 from PIL import Image
 
+from image_brush import CircularBrush
+
 
 def rgb_to_char(r,g,b):
     c = chr(int((r + g + b) / 3))
@@ -40,12 +42,12 @@ class ASCIIImageViewer():
         self.filepath = filepath
         self.x = 0
         self.y = 0
-        self._reticule_radius = -1
+        self.brush = CircularBrush(radius=0)
         self._move_factor = 1
         self.reset_buffer()
 
     def __repr__(self):
-        return f"{self.filepath} [{self.x}, {self.y} | {self.reticule_radius}, {self.move_factor}] {self.pixel()}"
+        return f"{self.filepath} [{self.x}, {self.y} | {self.brush.radius}, {self.move_factor}] {self.pixel()}"
 
     def load_image(self):
         self.image = Image.open(self.filepath)
@@ -89,24 +91,6 @@ class ASCIIImageViewer():
         return (self.WIDTH, self.HEIGHT)
 
     @property
-    def reticule_radius(self):
-        return self._reticule_radius
-
-    @reticule_radius.setter
-    def reticule_radius(self, value):
-        self.reticule = None
-        if isinstance(value, int) and value >= -1:
-            self._reticule_radius = value
-        # Make the reticule
-        if self._reticule_radius >= 0:
-            vp_x, vp_y = self.viewport
-            self.reticule = (
-                (int(vp_x / 2) - self._reticule_radius, int(vp_x / 2) + self._reticule_radius + 1),
-                (int(vp_y / 2) - self._reticule_radius, int(vp_y / 2) + self._reticule_radius + 1)
-            )
-        return self.reticule
-
-    @property
     def move_factor(self):
         return self._move_factor
 
@@ -132,15 +116,18 @@ class ASCIIImageViewer():
         # Copies the pixel buffer and transforms it into colored ascii chars in the display buffer
         self.display_buffer = list(self.buffer)
         size = self.viewport
+        brush_position = (
+            (int(size[0] / 2) - self.brush.radius, int(size[0] / 2) + self.brush.radius + 1),
+            (int(size[1] / 2) - self.brush.radius, int(size[1] / 2) + self.brush.radius + 1)
+        )
         for y, line in enumerate(self.display_buffer):
             for x, pixel in enumerate(line):
                 if transform:
                     self.display_buffer[y][x] = transform(*pixel)
-                if self.reticule and x in range(*self.reticule[0]) and y in range(*self.reticule[1]):
-                    if x == int(size[0]/2) and y == int(size[1]/2):
-                        self.display_buffer[y][x] = "X"
-                    else:
-                        self.display_buffer[y][x] = f"\033[5m{self.display_buffer[y][x]}\033[0m"
+                if not self.brush.disabled and x in range(*brush_position[0]) and y in range(*brush_position[1]):
+                    sprite_px = self.brush.sprite[y - brush_position[1][0]][x - brush_position[0][0]]
+                    if not self.brush.is_transparent_px(sprite_px):
+                        self.display_buffer[y][x] = f"\033[5m{sprite_px}\033[0m"
 
     def print_display_buffer(self, transform=rgb_to_char):
         self.prepare_display_buffer(transform)
@@ -152,7 +139,7 @@ if __name__ == "__main__":
     viewer = ASCIIImageViewer(filepath="data/Aventurien_Master_5125x8200.png")
     viewer.load_image()
     viewer.center()
-    viewer.reticule_radius = 3
+    viewer.brush.set_radius(3)
     viewer.update_buffer()
     viewer.print_display_buffer(transform=rgb_to_ansi_color_ascii)
     print(viewer)

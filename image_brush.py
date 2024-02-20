@@ -4,6 +4,10 @@ class RectangularBrush():
     X_FACTOR = 2
     Y_FACTOR = 2
 
+    TRANSPARENT_PX = '-'
+    BRUSH_PX = '#'
+    CENTER_PX = 'X'
+
     def __init__(self, x=0, y=0):
         # (0,0) is a point brush, (-1,-1) disables the brush
         self.set_dimensions(x,y)
@@ -14,12 +18,22 @@ class RectangularBrush():
         else:
             self.width, self.height = self.X_FACTOR * x + 1, self.Y_FACTOR * y + 1
         self.bitmask = self.make_bitmask()
+        self.sprite = self.style_bitmask()
         return self.width, self.height
 
     @property
     def disabled(self):
         # Disabled if bitmask is empty []
         return not bool(self.bitmask)
+
+    def is_transparent_px(self, char):
+        return char == self.TRANSPARENT_PX
+
+    def is_brush_px(self, char):
+        return char == self.BRUSH_PX
+
+    def is_center_px(self, char):
+        return char == self.CENTER_PX
 
     def make_bitmask(self):
         bm = [[1 for _ in range(self.width)] for _ in range(self.height)]
@@ -28,7 +42,7 @@ class RectangularBrush():
     def __repr__(self):
         return f"{self.__class__.__name__} W:{self.width} H:{self.height}"
 
-    def style_bitmask(self, c='X', b='#', t='-'):
+    def style_bitmask(self, c=CENTER_PX, b=BRUSH_PX, t=TRANSPARENT_PX):
         bitmask = self.bitmask[:]
         # Style brush and transparent bits
         for x in range(self.width):
@@ -42,12 +56,11 @@ class RectangularBrush():
             bitmask[int(self.height/2)][int(self.width/2)] = c
         return bitmask
 
-    def render(self, c='X', b='#', t=' '):
-        bitmask = self.style_bitmask()
-        buffer = ""
-        for line in self.bitmask:
-            buffer += "".join(line) + "\n"
-        return buffer
+    def render(self):
+        sprite = ""
+        for line in self.sprite:
+            sprite += "".join(line) + "\n"
+        return sprite
 
 class CircularBrush(RectangularBrush):
 

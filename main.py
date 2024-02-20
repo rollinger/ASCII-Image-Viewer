@@ -8,7 +8,7 @@ if __name__ == "__main__":
     viewer = ASCIIImageTagger(filepath="data/Aventurien_Master_5125x8200.png")
     viewer.load_image()
     viewer.center()
-    viewer.reticule_radius = 3
+    viewer.brush.set_radius(3)
 
 
     while True:
@@ -29,9 +29,9 @@ if __name__ == "__main__":
         elif key == 'd':
             viewer.move("right")
         elif key == "+":
-            viewer.reticule_radius += 1
+            viewer.brush.set_radius(viewer.brush.radius + 1)
         elif key == "-":
-            viewer.reticule_radius -= 1
+            viewer.brush.set_radius(viewer.brush.radius - 1)
         elif key == "y":
             viewer.move_factor -= 1
         elif key == "x":
